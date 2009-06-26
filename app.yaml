@@ -4,10 +4,9 @@ runtime: python
 api_version: 1
 
 handlers:
-- url: /.*
+- url: /_wave/.*
   script: weatherwave.py
+- url: /assets
+  static_dir: assets
 
-- url: /sunny.png
-  static_files: sunny.png
-  upload: sunny.png
 
