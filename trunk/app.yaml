@@ -1,0 +1,13 @@
+application: shiny-sky
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /.*
+  script: weatherwave.py
+
+- url: /sunny.png
+  static_files: sunny.png
+  upload: sunny.png
+
