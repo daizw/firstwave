@@ -23,8 +23,8 @@ def OnBlipSubmitted(properties, context):
     words = blip.GetDocument().GetText()
     words = words.replace(':-(', unichr(0x2639)).replace(':-)', unichr(0x263A))
     blip.GetDocument().SetText(words)
-    #logging.debug("type(words): %s" % type(words))
-    #logging.debug("words: %s" % words)
+    logging.debug("type(words): %s" % type(words))
+    logging.debug("words: %s" % words)
     if words.strip():
         blip.CreateChild().GetDocument().SetText("Sunny~~")
 
@@ -33,10 +33,10 @@ def Notify(context, message):
     root_wavelet.CreateBlip().GetDocument().SetText(message)
 
 if __name__ == '__main__':
-    myRobot = robot.Robot('DrWeather',
-            image_url='http://lh5.ggpht.com/_5muWbLCGFhQ/SkR0nJkMa4I/AAAAAAAAAWQ/2t0I-u3m5zY/sunny.png',
+    myRobot = robot.Robot('Dr. Weather',
+            image_url='http://shiny-sky.appspot.com/assets/sunny.png',
             version='1.0',
-            profile_url='http://shiny-sky.appspot.com/')
+            profile_url='http://shiny-sky.appspot.com/assets/profile.html')
     myRobot.RegisterHandler(events.WAVELET_SELF_ADDED, OnRobotAdded)
     myRobot.RegisterHandler(events.WAVELET_PARTICIPANTS_CHANGED, OnParticipantsChanged)
     myRobot.RegisterHandler(events.BLIP_SUBMITTED, OnBlipSubmitted)
