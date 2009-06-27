@@ -5,7 +5,7 @@ api_version: 1
 
 handlers:
 - url: /_wave/.*
-  script: weatherwave.py
+  script: dr.weather.py
 - url: /assets
   static_dir: assets
 
