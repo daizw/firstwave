@@ -22,7 +22,7 @@ def OnParticipantsChanged(properties, context):
     added = properties['participantsAdded']
     for p in added:
         if p != 'shiny-sky@appspot.com':
-            Notify(context, "Do you wanna know weather information? Ask me!")
+            Notify(context, "Do you wanna know weather information? Ask me!\nUsage: @city,country")
             break
 
 def OnBlipSubmit(properties, context):
