@@ -79,6 +79,6 @@ if __name__ == '__main__':
             profile_url='http://shiny-sky.appspot.com/assets/profile.html')
     myRobot.RegisterHandler(events.WAVELET_SELF_ADDED, OnRobotAdded)
     myRobot.RegisterHandler(events.BLIP_SUBMITTED, OnBlipSubmit)
-    myRobot.RegisterHandler(events.WAVELET_PARTICIPANTS_CHANGED, OnParticipantsChanged)
+    #myRobot.RegisterHandler(events.WAVELET_PARTICIPANTS_CHANGED, OnParticipantsChanged)
     
     myRobot.Run(debug=True)
