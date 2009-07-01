@@ -17,15 +17,17 @@ def OnBlipSubmit():
     """
     while True:
         text = raw_input('query:')
-        queries = re.findall(r'(?i)@([^,@]+(,(\s)?[^,@]*)?)', text)
+        queries = re.findall(r'(?i)@([^,@#]+(,[^,@#]*)?)(#([^,@#]*))?', text)
+        #print queries
         if queries:
             print 'find %d queries...' % len(queries)
         #Iterate through search strings
         for q in queries:
             city = q[0].strip().replace(' ', '%20')
-            print 'city:', city
-            weather_data = gwapi.get_weather_from_google(city, 'zh-tw')
-            print gooleWeatherConverter(weather_data)
+            lang = q[3].strip().replace(' ', '%20')
+            print 'city and lang:', city, lang
+            weather_data = gwapi.get_weather_from_google(city, lang)
+            print gooleWeatherConverter(weather_data)#.encode('utf-8')
 
 def Fahrenheit2Celsius(F):
     '''convert F to C'''
@@ -59,7 +61,8 @@ def TempConverter(t, u):
 def gooleWeatherConverter(weatherData):
     '''convert data to html/txt'''
     text = ''
-    text += '%s\n%s %sC(%sF)\n' % (weatherData['forecast_information']['city'],
+    text += '%s\n%s, %sC(%sF)\n' % (
+            weatherData['forecast_information']['city'].upper(),
             weatherData['current_conditions']['condition'],
             weatherData['current_conditions']['temp_c'],
             weatherData['current_conditions']['temp_f'])

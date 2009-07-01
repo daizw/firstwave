@@ -20,8 +20,7 @@ from waveapi import model
 from waveapi import robot
 from waveapi import document
 
-from google.appengine.api import urlfetch
-import pywapi
+import gwapi
 
 URL_GOOGLE = 'http://www.google.com'
 
@@ -42,14 +41,15 @@ def OnBlipSubmit(properties, context):
     """Invoked when new blip submitted. append rich formatted text to blip"""
     blip = context.GetBlipById(properties['blipId'])
     text = blip.GetDocument().GetText()
-    queries = re.findall(r'(?i)@([^,@]+(,(\s)?[^,@]*)?)', text)
+    queries = re.findall(r'(?i)@([^,@#]+(,[^,@#]*)?)(#([^,@#]*))?', text)
     if queries:
         newBlip = blip.GetDocument().AppendInlineBlip()
         doc = newBlip.GetDocument()
     #Iterate through search strings
     for q in queries:
         city = q[0].strip().replace(' ', '%20')
-        weather_data = pywapi.get_weather_from_google(city)
+        lang = q[3].strip().replace(' ', '%20')
+        weather_data = gwapi.get_weather_from_google(city, lang)
         gooleWeatherConverter(weather_data, doc)
 
 def Notify(context, message):
@@ -92,13 +92,13 @@ def gooleWeatherConverter(weatherData, doc):
     '''convert data to html/txt'''
     doc.AppendText('\n\n')
     doc.AppendElement(getImageObj(weatherData['current_conditions']['icon']))
-    doc.AppendText('\nCity: %s\n' % weatherData['forecast_information']['city'])
-    doc.AppendText('Current Condition: %s\n' % weatherData['current_conditions']['condition'])
-    doc.AppendText('Temperature: %sC(%sF)\n' % (weatherData['current_conditions']['temp_c'],
-        weatherData['current_conditions']['temp_f']))
-    doc.AppendText('%s\n' % weatherData['current_conditions']['humidity'])
-    doc.AppendText('%s\n' % weatherData['current_conditions']['wind_condition'])
-    doc.AppendText('\nForecasts:\n')
+    doc.AppendText('\n%s\n%s, %sC(%sF)\n%s\n%s\n\n' % (
+        weatherData['forecast_information']['city'].upper(),
+        weatherData['current_conditions']['condition'],
+        weatherData['current_conditions']['temp_c'],
+        weatherData['current_conditions']['temp_f'],
+        weatherData['current_conditions']['humidity'],
+        weatherData['current_conditions']['wind_condition']))
     for day in weatherData['forecasts']:
         doc.AppendElement(getImageObj(day['icon']))
         doc.AppendText(' %s: %s, %s ~ %s\n'%(day['day_of_week'], day['condition'],
