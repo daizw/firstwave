@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-__author__ = 'shinysky'
-__license__ = "Apache License"
-__version__ = "2.0"
+__author__ = "shinysky"
+__license__ = "Apache License 2.0"
+__version__ = "1.0"
 
 '''Dr. Weather, a Google Wave robot.
 Gives the weather of a city.
@@ -94,9 +94,9 @@ def gooleWeatherConverter(weatherData, doc):
     doc.AppendElement(getImageObj(weatherData['current_conditions']['icon']))
     doc.AppendText('\nCity: %s\n' % weatherData['forecast_information']['city'])
     doc.AppendText('Current Condition: %s\n' % weatherData['current_conditions']['condition'])
-    doc.AppendText('%s\n' % weatherData['current_conditions']['humidity'])
     doc.AppendText('Temperature: %sC(%sF)\n' % (weatherData['current_conditions']['temp_c'],
-        weatherData['current_conditions']['temp_f'])
+        weatherData['current_conditions']['temp_f']))
+    doc.AppendText('%s\n' % weatherData['current_conditions']['humidity'])
     doc.AppendText('%s\n' % weatherData['current_conditions']['wind_condition'])
     doc.AppendText('\nForecasts:\n')
     for day in weatherData['forecasts']:

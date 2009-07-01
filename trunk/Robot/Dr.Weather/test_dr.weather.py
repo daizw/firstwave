@@ -5,6 +5,7 @@ import logging
 import re
 
 import pywapi
+import gwapi
 
 def OnBlipSubmit():
     """Invoked when new blip submitted.
@@ -23,7 +24,7 @@ def OnBlipSubmit():
         for q in queries:
             city = q[0].strip().replace(' ', '%20')
             print 'city:', city
-            weather_data = pywapi.get_weather_from_google(city)
+            weather_data = gwapi.get_weather_from_google(city, 'zh-tw')
             print gooleWeatherConverter(weather_data)
 
 def Fahrenheit2Celsius(F):
@@ -58,13 +59,12 @@ def TempConverter(t, u):
 def gooleWeatherConverter(weatherData):
     '''convert data to html/txt'''
     text = ''
-    text += 'City: %s\n' % weatherData['forecast_information']['city']
-    text += 'Current Condition: %s\n' % weatherData['current_conditions']['condition']
-    text += '%s\n' % weatherData['current_conditions']['humidity']
-    text += 'Temperature: %sC(%sF)\n' % (weatherData['current_conditions']['temp_c'],
+    text += '%s\n%s %sC(%sF)\n' % (weatherData['forecast_information']['city'],
+            weatherData['current_conditions']['condition'],
+            weatherData['current_conditions']['temp_c'],
             weatherData['current_conditions']['temp_f'])
-    text += '%s\n' % weatherData['current_conditions']['wind_condition']
-    text += '\nForecasts:\n'
+    text += '%s\n' % weatherData['current_conditions']['humidity']
+    text += '%s\n\n' % weatherData['current_conditions']['wind_condition']
     for day in weatherData['forecasts']:
         text += '%s: %s, %s ~ %s\n'%(day['day_of_week'],
                 day['condition'],
