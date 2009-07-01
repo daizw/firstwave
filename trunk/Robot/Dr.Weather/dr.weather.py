@@ -32,18 +32,19 @@ from waveapi import document
 import gwapi
 
 URL_GOOGLE = 'http://www.google.com'
+STR_USAGE = 'Usage:\n@city\n@city,country\n@city#language-code\n@city,country#language-code\n'
 
 def OnRobotAdded(properties, context):
     """Invoked when the robot has been added."""
     root_wavelet = context.GetRootWavelet()
-    root_wavelet.CreateBlip().GetDocument().SetText("Hi, everybody, I can see the future!\nUsage: @city,country#language-code")
+    root_wavelet.CreateBlip().GetDocument().SetText("Hi, everybody, I can see the future!\n"+STR_USAGE)
 
 def OnParticipantsChanged(properties, context):
     """Invoked when any participants have been added/removed."""
     added = properties['participantsAdded']
     for p in added:
         if p != 'shiny-sky@appspot.com':
-            Notify(context, "Do you wanna know weather information? Ask me!\nUsage: @city,country#language-code")
+            Notify(context, "Do you wanna know weather information? Ask me!\n"+STR_USAGE)
             break
 
 def OnBlipSubmit(properties, context):
