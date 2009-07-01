@@ -8,8 +8,17 @@ __version__ = "1.0"
 '''Dr. Weather, a Google Wave robot.
 Gives the weather of a city.
 
-Usage: @city,country
-E.g.: @beijing,china
+Usage:
+@city
+@city,country
+@city#language-code
+@city,country#language-code
+
+E.g.:
+@beijing
+@beijing,china
+@beijing#zh-cn
+@beijing,china#zh-cn
 '''
 
 import logging
@@ -27,14 +36,14 @@ URL_GOOGLE = 'http://www.google.com'
 def OnRobotAdded(properties, context):
     """Invoked when the robot has been added."""
     root_wavelet = context.GetRootWavelet()
-    root_wavelet.CreateBlip().GetDocument().SetText("Hi, everybody, I can see the future!\nUsage: @city,country")
+    root_wavelet.CreateBlip().GetDocument().SetText("Hi, everybody, I can see the future!\nUsage: @city,country#language-code")
 
 def OnParticipantsChanged(properties, context):
     """Invoked when any participants have been added/removed."""
     added = properties['participantsAdded']
     for p in added:
         if p != 'shiny-sky@appspot.com':
-            Notify(context, "Do you wanna know weather information? Ask me!\nUsage: @city,country")
+            Notify(context, "Do you wanna know weather information? Ask me!\nUsage: @city,country#language-code")
             break
 
 def OnBlipSubmit(properties, context):
