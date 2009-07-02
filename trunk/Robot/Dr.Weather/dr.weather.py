@@ -36,11 +36,13 @@ STR_USAGE = 'Usage:\n@city\n@city,country\n@city#language-code\n@city,country#la
 
 def OnRobotAdded(properties, context):
     """Invoked when the robot has been added."""
+    logging.debug('OnRobotAdded()')
     root_wavelet = context.GetRootWavelet()
     root_wavelet.CreateBlip().GetDocument().SetText("Hi, everybody, I can see the future!\n"+STR_USAGE)
 
 def OnParticipantsChanged(properties, context):
     """Invoked when any participants have been added/removed."""
+    logging.debug('OnParticipantsChanged()')
     added = properties['participantsAdded']
     for p in added:
         if p != 'shiny-sky@appspot.com':
@@ -49,9 +51,15 @@ def OnParticipantsChanged(properties, context):
 
 def OnBlipSubmit(properties, context):
     """Invoked when new blip submitted. append rich formatted text to blip"""
+    logging.debug('OnBlipSubmit()')
     blip = context.GetBlipById(properties['blipId'])
     text = blip.GetDocument().GetText()
-    queries = re.findall(r'(?i)@([^,@#]+(,[^,@#]*)?)(#([^,@#]*))?', text)
+    try:
+        logging.debug('creator: %s' % blip.GetCreator())
+        logging.debug('text: %s' % text)
+    except:
+        pass
+    queries = re.findall(r'(?i)@([^,@#]+(,[^,@#]*)?)(#([a-zA-Z\-]*))?', text)
     if queries:
         newBlip = blip.GetDocument().AppendInlineBlip()
         doc = newBlip.GetDocument()
@@ -59,6 +67,7 @@ def OnBlipSubmit(properties, context):
     for q in queries:
         city = q[0].strip().replace(' ', '%20')
         lang = q[3].strip().replace(' ', '%20')
+        logging.debug('query: %s'+str(q))
         weather_data = gwapi.get_weather_from_google(city, lang)
         gooleWeatherConverter(weather_data, doc)
 
