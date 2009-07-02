@@ -4,7 +4,6 @@
 import logging
 import re
 
-import pywapi
 import gwapi
 
 def OnBlipSubmit():
@@ -17,7 +16,7 @@ def OnBlipSubmit():
     """
     while True:
         text = raw_input('query:')
-        queries = re.findall(r'(?i)@([^,@#]+(,[^,@#]*)?)(#([^,@#]*))?', text)
+        queries = re.findall(r'(?i)@([^,@#]+(,[^,@#]*)?)(#([a-zA-Z\-]*))?', text)
         #print queries
         if queries:
             print 'find %d queries...' % len(queries)
