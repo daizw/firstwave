@@ -24,7 +24,7 @@ def OnBlipSubmit():
         #Iterate through search strings
         for q in queries:
             print urllib2.quote(q[0])
-            city = q[0].strip().decode('gbk').encode('utf-8')
+            city = q[0].strip().decode('gb18030').encode('utf-8')
             lang = q[3].strip()
             print 'city and lang:', city.decode('utf-8'), lang
             city = urllib2.quote(city)#.replace(' ', '%20')
