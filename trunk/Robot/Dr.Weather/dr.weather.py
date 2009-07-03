@@ -69,7 +69,8 @@ def OnBlipSubmit(properties, context):
         lang = q[3].strip().replace(' ', '%20')
         logging.debug('query: %s'+str(q))
         weather_data = gwapi.get_weather_from_google(city, lang)
-        gooleWeatherConverter(weather_data, doc)
+        if weather_data:
+            gooleWeatherConverter(weather_data, doc)
 
 def Notify(context, message):
     root_wavelet = context.GetRootWavelet()
