@@ -45,7 +45,7 @@ def OnParticipantsChanged(properties, context):
     logging.debug('OnParticipantsChanged()')
     added = properties['participantsAdded']
     for p in added:
-        if p != 'dr-weather@appspot.com':
+        if p != 'shiny-sky@appspot.com':
             Notify(context, "Do you wanna know weather information? Ask me!\n"+STR_USAGE)
             break
 
@@ -59,7 +59,7 @@ def OnBlipSubmit(properties, context):
         logging.debug('text: %s' % text)
     except:
         pass
-    queries = re.findall(r'(?i)@([a-z ]+(,[a-z ]*)?)(#([a-z\-]*))?', text)
+    queries = re.findall(r"(?i)@([a-z][a-z\- ']*(,[a-z ]*)?)(#([a-z]+(-[a-z]+)?)?)?", text)
     if queries:
         newBlip = blip.GetDocument().AppendInlineBlip()
         doc = newBlip.GetDocument()
@@ -126,9 +126,9 @@ def gooleWeatherConverter(weatherData, doc):
 
 if __name__ == '__main__':
     myRobot = robot.Robot('Dr. Weather',
-            image_url='http://dr-weather.appspot.com/assets/sunny.png',
+            image_url='http://shiny-sky.appspot.com/assets/sunny.png',
             version='1.0',
-            profile_url='http://dr-weather.appspot.com/assets/profile.html')
+            profile_url='http://shiny-sky.appspot.com/assets/profile.html')
     myRobot.RegisterHandler(events.WAVELET_SELF_ADDED, OnRobotAdded)
     myRobot.RegisterHandler(events.BLIP_SUBMITTED, OnBlipSubmit)
     #myRobot.RegisterHandler(events.WAVELET_PARTICIPANTS_CHANGED, OnParticipantsChanged)
