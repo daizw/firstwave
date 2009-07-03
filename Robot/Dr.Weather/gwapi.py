@@ -32,7 +32,7 @@ __version__ = "1.0"
 Fetches weather reports from Google Weather
 """
 
-import urllib2, re
+import urllib2, re, logging
 from xml.dom import minidom
 
 GOOGLE_WEATHER_URL = 'http://www.google.com/ig/api?weather=%s&hl=%s'
@@ -53,6 +53,9 @@ def get_weather_from_google(location_id, hl = ''):
     handler = urllib2.urlopen(url)
     content_type = handler.info().dict['content-type']
     charset = re.search('charset\=(.*)',content_type).group(1)
+    logging.debug('charset: %s' % charset)
+    if charset.upper() == 'GB2312':
+        charset = 'GB18030'
     xml_response = handler.read().decode(charset).encode('utf-8')
     dom = minidom.parseString(xml_response)    
     handler.close()
