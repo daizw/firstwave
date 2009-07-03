@@ -3,6 +3,7 @@
 
 import logging
 import re
+import urllib2
 
 import gwapi
 
@@ -16,17 +17,21 @@ def OnBlipSubmit():
     """
     while True:
         text = raw_input('query:')
-        queries = re.findall(r"(?i)@([a-z][a-z\- ']*(,[a-z ]*)?)(#([a-z]+(-[a-z]+)?)?)?", text)
-        print queries
-        #if queries:
-        #    print 'find %d queries...' % len(queries)
-        ##Iterate through search strings
-        #for q in queries:
-        #    city = q[0].strip().replace(' ', '%20')
-        #    lang = q[3].strip().replace(' ', '%20')
-        #    print 'city and lang:', city, lang
-        #    weather_data = gwapi.get_weather_from_google(city, lang)
-        #    print gooleWeatherConverter(weather_data)#.encode('utf-8')
+        queries = re.findall(r"(?i)@([^@#,\t\r\n\v\f][^@#,\t\r\n\v\f]*(,[^@#,\t\r\n\v\f]*)?)(#([a-z]+(-[a-z]+)?)?)?", text)
+        #print queries
+        if queries:
+            print 'find %d queries...' % len(queries)
+        #Iterate through search strings
+        for q in queries:
+            print urllib2.quote(q[0])
+            city = q[0].strip().decode('gbk').encode('utf-8')
+            lang = q[3].strip()
+            print 'city and lang:', city.decode('utf-8'), lang
+            city = urllib2.quote(city)#.replace(' ', '%20')
+            print city
+            weather_data = gwapi.get_weather_from_google(city, lang)
+            if weather_data:
+                print gooleWeatherConverter(weather_data)#.encode('utf-8')
 
 def Fahrenheit2Celsius(F):
     '''convert F to C'''
