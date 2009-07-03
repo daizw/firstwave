@@ -45,7 +45,7 @@ def OnParticipantsChanged(properties, context):
     logging.debug('OnParticipantsChanged()')
     added = properties['participantsAdded']
     for p in added:
-        if p != 'shiny-sky@appspot.com':
+        if p != 'shiny-sky@appspot.com' and p != 'dr-weather@appspot.com':
             Notify(context, "Do you wanna know weather information? Ask me!\n"+STR_USAGE)
             break
 
