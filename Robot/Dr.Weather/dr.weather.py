@@ -23,6 +23,7 @@ E.g.:
 
 import logging
 import re
+import urllib2
 
 from waveapi import events
 from waveapi import model
@@ -59,15 +60,17 @@ def OnBlipSubmit(properties, context):
         logging.debug('text: %s' % text)
     except:
         pass
-    queries = re.findall(r"(?i)@([a-z][a-z\- ']*(,[a-z ]*)?)(#([a-z]+(-[a-z]+)?)?)?", text)
+    queries = re.findall(r"(?i)@([^@#,\t\r\n\v\f][^@#,\t\r\n\v\f]*(,[^@#,\t\r\n\v\f]*)?)(#([a-z]+(-[a-z]+)?)?)?", text)
     if queries:
         newBlip = blip.GetDocument().AppendInlineBlip()
         doc = newBlip.GetDocument()
     #Iterate through search strings
     for q in queries:
-        city = q[0].strip().replace(' ', '%20')
-        lang = q[3].strip().replace(' ', '%20')
+        city = q[0].strip().encode('utf-8')
+        lang = q[3].strip()
         logging.debug('query: %s'+str(q))
+        city = urllib2.quote(city)
+        logging.debug('quote city: %s' % city)
         weather_data = gwapi.get_weather_from_google(city, lang)
         if weather_data:
             gooleWeatherConverter(weather_data, doc)
