@@ -26,7 +26,7 @@
 
 __author__ = 'shinysky'
 __license__ = "Apache License 2.0"
-__version__ = "1.0"
+__version__ = "2.0"
 
 """
 Fetches weather reports from Google Weather

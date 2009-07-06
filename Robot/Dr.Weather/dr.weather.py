@@ -3,7 +3,7 @@
 
 __author__ = "shinysky"
 __license__ = "Apache License 2.0"
-__version__ = "1.0"
+__version__ = "2.0"
 
 '''Dr. Weather, a Google Wave robot.
 Gives the weather of a city.
