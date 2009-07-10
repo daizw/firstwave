@@ -35,15 +35,18 @@ import gwapi
 URL_GOOGLE = 'http://www.google.com'
 STR_USAGE = 'Usage:\n@city\n@city,country\n@city#language-code\n@city,country#language-code\n'
 
+logger = logging.getLogger('Dr_Weather')
+logger.setLevel(logging.INFO)
+
 def OnRobotAdded(properties, context):
     """Invoked when the robot has been added."""
-    logging.debug('OnRobotAdded()')
+    logger.debug('OnRobotAdded()')
     root_wavelet = context.GetRootWavelet()
     root_wavelet.CreateBlip().GetDocument().SetText("Hi, everybody, I can see the future!\n"+STR_USAGE)
 
 def OnParticipantsChanged(properties, context):
     """Invoked when any participants have been added/removed."""
-    logging.debug('OnParticipantsChanged()')
+    logger.debug('OnParticipantsChanged()')
     added = properties['participantsAdded']
     for p in added:
         if p != 'shiny-sky@appspot.com' and p != 'dr-weather@appspot.com':
@@ -52,12 +55,11 @@ def OnParticipantsChanged(properties, context):
 
 def OnBlipSubmit(properties, context):
     """Invoked when new blip submitted. append rich formatted text to blip"""
-    logging.debug('OnBlipSubmit()')
     blip = context.GetBlipById(properties['blipId'])
     text = blip.GetDocument().GetText()
     try:
-        logging.debug('creator: %s' % blip.GetCreator())
-        logging.debug('text: %s' % text)
+        logger.debug('creator: %s' % blip.GetCreator())
+        logger.debug('text: %s' % text)
     except:
         pass
     queries = re.findall(r"(?i)@([^@#,\t\r\n\v\f][^@#,\t\r\n\v\f]*(,[^@#,\t\r\n\v\f]*)?)(#([a-z]+(-[a-z]+)?)?)?", text)
@@ -68,9 +70,9 @@ def OnBlipSubmit(properties, context):
     for q in queries:
         city = q[0].strip().encode('utf-8')
         lang = q[3].strip()
-        logging.debug('query: %s'+str(q))
+        logger.info('query: %s'+str(q))
         city = urllib2.quote(city)
-        logging.debug('quote city: %s' % city)
+        logger.debug('quote city: %s' % city)
         weather_data = gwapi.get_weather_from_google(city, lang)
         if weather_data:
             gooleWeatherConverter(weather_data, doc)

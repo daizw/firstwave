@@ -5,9 +5,9 @@ __author__ = "shinysky"
 __license__ = "Apache License 2.0"
 __version__ = "1.0"
 
-'''Boturl, a Google Wave robot.
+'''BotURL, a Google Wave robot.
 
-Shorten urls in blips.
+Shorten URLs in blips.
 Usage:
     Just add me as a participant, I will take care of the rest
 '''
@@ -22,30 +22,43 @@ from waveapi import robot
 from waveapi import document
 
 URL_TINYURL = 'http://tinyurl.com/api-create.php?url=%s'
-STR_USAGE = 'Usage:\nJust add me as a participant, I will take care of the rest\n'
+STR_USAGE = "Usage:\nJust add me as a participant, I'll take care of the rest\n"
+
+logger = logging.getLogger('BotURL')
+logger.setLevel(logging.INFO)
 
 def OnRobotAdded(properties, context):
     """Invoked when the robot has been added."""
+    logger.debug('OnRobotAdded()')    
     root_wavelet = context.GetRootWavelet()
-    root_wavelet.CreateBlip().GetDocument().SetText("Hi, everybody, I can shorten the urls!\n"+STR_USAGE)
+    root_wavelet.CreateBlip().GetDocument().SetText("Hi, everybody, I can shorten the URLs!\n"+STR_USAGE)
 
 def OnBlipSubmit(properties, context):
     """Invoked when new blip submitted."""
     blip = context.GetBlipById(properties['blipId'])
-    text = blip.GetDocument().GetText()
-    oritext = text
+    doc = blip.GetDocument()
+    text = doc.GetText()
+    try:
+        logger.debug('creator: %s' % blip.GetCreator())
+        logger.debug('text: %s' % text)
+    except:
+        pass
     queries = re.findall(r"(?i)((https?|ftp|gopher|telnet|file|notes|ms-help):((//)|(\\\\))+[\w\d:#@%/;$()~_?\+-=\\\.&]*)", text)
     #Iterate through search strings
     for q in queries:
-        url = URL_TINYURL % q
+        logger.info('query: %s' % q[0])
+        if q[0].startswith('http://tinyurl.com'):
+            continue
+        url = URL_TINYURL % q[0]
         handler = urllib2.urlopen(url)
         response = handler.read()
         handler.close()
-        logging.debug('response:\n' + response)
+        logger.info('response:\n' + response)
         if response.startswith('http://tinyurl.com/') and len(response) < 30:
-            text = text.replace(q, response)
-    if text != oritext:
-        blip.GetDocument().SetText(text)
+            left = text.find(q[0])
+            if left >= 0:
+                doc.SetTextInRange(document.Range(left, left+len(q[0])), response)
+                text = text.replace(q[0], response, 1)
 
 def Notify(context, message):
     root_wavelet = context.GetRootWavelet()
