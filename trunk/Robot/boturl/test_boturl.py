@@ -20,6 +20,7 @@ def OnBlipSubmit():
         for q in queries:
             q = 'http://blog.csdn.net/g9yuayon/archive/2006/09/24/1271270.aspx'
             url = URL_TINYURL % q
+            print url
             handler = urllib2.urlopen(url)
             response = handler.read()
             handler.close()
