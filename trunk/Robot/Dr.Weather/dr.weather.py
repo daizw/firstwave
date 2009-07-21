@@ -36,7 +36,7 @@ URL_GOOGLE = 'http://www.google.com'
 STR_USAGE = 'Usage:\n@city\n@city,country\n@city#language-code\n@city,country#language-code\n'
 
 logger = logging.getLogger('Dr_Weather')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 def OnRobotAdded(properties, context):
     """Invoked when the robot has been added."""
@@ -62,10 +62,8 @@ def OnBlipSubmit(properties, context):
         logger.debug('text: %s' % text)
     except:
         pass
-    queries = re.findall(r"(?i)@([^@#,\t\r\n\v\f][^@#,\t\r\n\v\f]*(,[^@#,\t\r\n\v\f]*)?)(#([a-z]+(-[a-z]+)?)?)?", text)
-    if queries:
-        newBlip = blip.GetDocument().AppendInlineBlip()
-        doc = newBlip.GetDocument()
+    queries = re.findall(r"(?i)@([^@#,\t\r\n\v\f]+(,[^@#,\t\r\n\v\f]*)?)(#([a-z]+(-[a-z]+)?)?)?", text)
+    doc = None
     #Iterate through search strings
     for q in queries:
         city = q[0].strip().encode('utf-8')
@@ -75,6 +73,9 @@ def OnBlipSubmit(properties, context):
         logger.debug('quote city: %s' % city)
         weather_data = gwapi.get_weather_from_google(city, lang)
         if weather_data:
+            if doc == None:
+                newBlip = blip.GetDocument().AppendInlineBlip()
+                doc = newBlip.GetDocument()
             gooleWeatherConverter(weather_data, doc)
 
 def Notify(context, message):
