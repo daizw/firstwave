@@ -38,6 +38,7 @@ def OnBlipSubmit(properties, context):
     blip = context.GetBlipById(properties['blipId'])
     doc = blip.GetDocument()
     text = doc.GetText()
+    left = 0
     try:
         logger.debug('creator: %s' % blip.GetCreator())
         logger.debug('text: %s' % text)
@@ -55,17 +56,18 @@ def OnBlipSubmit(properties, context):
         handler.close()
         logger.info('response:\n' + response)
         if response.startswith('http://tinyurl.com/') and len(response) < 30:
-            left = text.find(q[0])
+            left = text.find(q[0], left)
             if left >= 0:
                 doc.SetTextInRange(document.Range(left, left+len(q[0])), response)
                 text = text.replace(q[0], response, 1)
+                left += len(response)
 
 def Notify(context, message):
     root_wavelet = context.GetRootWavelet()
     root_wavelet.CreateBlip().GetDocument().SetText(message)
 
 if __name__ == '__main__':
-    myRobot = robot.Robot('Boturl',
+    myRobot = robot.Robot('BotURL',
             image_url='http://boturl.appspot.com/assets/icon.png',
             version='1.0',
             profile_url='http://boturl.appspot.com/assets/profile.html')
