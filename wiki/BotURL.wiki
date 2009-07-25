@@ -17,7 +17,7 @@ BotURL only responses to *FULL* URLs, that meanings it will only response to "*H
 
 *E.g.*:
 || *Original text* || *Replacement* || *Note* ||
-|| http://www.google.com@members.tripod.com || [http://www.google.com@members.tripod.com [members.tripod.com/...]] || [http://en.wikipedia.org/wiki/Phishing Anti-phishing] ||
+|| http://www.google.com@members.tripod.com || [http://www.google.com@members.tripod.com [members.tripod.com/...]] || This can help you [http://en.wikipedia.org/wiki/Phishing Anti-phishing] ||
 || http://www.google.com || [http://www.google.com [google.com/...]] ||
 || http://tinyurl/dehdc || [http://www.google.com [google.com/...]] ||
 || http://bit.ly/1RmnUT || [http://www.google.com [google.com/...]] ||
