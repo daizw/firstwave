@@ -22,16 +22,24 @@ from waveapi import robot
 from waveapi import document
 
 URL_TINYURL = 'http://tinyurl.com/api-create.php?url=%s'
+URL_TINYURL_PREVIEW = 'http://tinyurl.com/preview.php?num=%s'
+
 STR_USAGE = "Usage:\nJust add me as a participant, I'll take care of the rest\n"
+STR_LINK_TEXT = '[%s/...]'
+STR_LINK_TEXT_S = '[%s]'
 
 logger = logging.getLogger('BotURL')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 def OnRobotAdded(properties, context):
     """Invoked when the robot has been added."""
     logger.debug('OnRobotAdded()')    
     root_wavelet = context.GetRootWavelet()
     root_wavelet.CreateBlip().GetDocument().SetText("Hi, everybody, I can shorten the URLs!\n"+STR_USAGE)
+
+def getMatchGroup(text):
+    """return URL match groups"""
+    return re.findall(r"(?i)((https?|ftp|telnet|file|ms-help|nntp|wais|gopher|notes|prospero):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&]*))", text)
 
 def OnBlipSubmit(properties, context):
     """Invoked when new blip submitted."""
@@ -44,23 +52,47 @@ def OnBlipSubmit(properties, context):
         logger.debug('text: %s' % text)
     except:
         pass
-    queries = re.findall(r"(?i)((https?|ftp|gopher|telnet|file|notes|ms-help):((//)|(\\\\))+[\w\d:#@%/;$()~_?\+-=\\\.&]*)", text)
+    queries = getMatchGroup(text)
     #Iterate through search strings
     for q in queries:
         logger.info('query: %s' % q[0])
-        if q[0].startswith('http://tinyurl.com'):
+        left = text.find(q[0], left)
+        if left < 0:
+            logger.error('failed to find a matched string.')
             continue
-        url = URL_TINYURL % q[0]
-        handler = urllib2.urlopen(url)
-        response = handler.read()
-        handler.close()
-        logger.info('response:\n' + response)
-        if response.startswith('http://tinyurl.com/') and len(response) < 30:
-            left = text.find(q[0], left)
-            if left >= 0:
-                doc.SetTextInRange(document.Range(left, left+len(q[0])), response)
-                text = text.replace(q[0], response, 1)
-                left += len(response)
+        replaceRange = document.Range(left, left+len(q[0]))
+        linkTxt = None
+        tMat = re.match('^http://tinyurl.com/(\w+)$', q[0])
+        if tMat:
+            #http://tinyurl.com/preview.php?num=dehdc
+            url = URL_TINYURL_PREVIEW % (tMat.groups()[0])
+            logger.debug('urlfetch: %s' % url)
+            handler = urllib2.urlopen(url)
+            response = handler.read()
+            handler.close()
+            oriurls = re.findall(r'(?i)<a id="redirecturl" href="([^<>]+)">', response)
+            if oriurls:
+                oMat = getMatchGroup(oriurls[0])
+                if oMat:
+                    q = oMat[0]
+                else:#it also possibly can't be matched by our regex
+                    q = (oriurls[0],)
+                    linkTxt = STR_LINK_TEXT_S % oriurls[0]
+
+        if linkTxt == None:
+            domain = q[5].replace('\\','/')
+            domain = domain.split('/',1)[0]
+            domleft = domain.find('@')
+            domain = domain[domleft+1:]
+            if domain.startswith('www.'):
+                domain = domain[4:]
+            linkTxt = STR_LINK_TEXT % domain
+
+        doc.SetTextInRange(replaceRange, linkTxt)
+        doc.SetAnnotation(document.Range(left, left+len(linkTxt)),
+                "link/manual", q[0])
+        text = text.replace(text[replaceRange.start:replaceRange.end], linkTxt, 1)
+        left += len(linkTxt)
 
 def Notify(context, message):
     root_wavelet = context.GetRootWavelet()
