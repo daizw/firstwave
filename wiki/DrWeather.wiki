@@ -1,5 +1,5 @@
 #labels Featured
-#Introduce Google Wave robot: Dr. Weather
+Introduce Google Wave robot: Dr. Weather
 
 = [http://wave-samples-gallery.appspot.com/about_app?app_id=10008 Dr. Weather] =
 
