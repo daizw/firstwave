@@ -4,18 +4,18 @@ Introduce Google Wave robot: Dr. Weather
 = [http://wave-samples-gallery.appspot.com/about_app?app_id=10008 Dr. Weather] =
 
 
-== Address ==:
+== Address ==
  * shiny-sky@appspot.com
 
 
-== Usage ==:
+== Usage ==
  * @city
  * @city,country
  * @city#language-code
  * @city,country#language-code
 
 
-== Notice ==:
+== Notice ==
 
 ~~NOT every language is supported.~~
 
