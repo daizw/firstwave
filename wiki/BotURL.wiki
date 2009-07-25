@@ -16,7 +16,7 @@ Introduce Google Wave robot: BotURL
 BotURL only responses to *FULL* URLs, that meanings it will only response to "*HTTP://*www.google.com" and will do nothing about "www.google.com"
 
 *E.g.*:
-|| *Original text* || *Replacement* || *Shorten URL* || *[http://en.wikipedia.org/wiki/Phishing Anti-phishing]* || Expand URL ||
+|| *Original text* || *Replacement* || *Shorten URL* || *[http://en.wikipedia.org/wiki/Phishing Anti-phishing]* || *Expand URL* ||
 || http://www.google.com@members.tripod.com || [http://www.google.com@members.tripod.com [members.tripod.com/...]] || YES || YES ||  ||
 || http://www.google.com || [http://www.google.com [google.com/...]] || YES || ||  ||
 || http://tinyurl/dehdc || [http://www.google.com [google.com/...]] ||  || || YES ||
