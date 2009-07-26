@@ -7,7 +7,7 @@ __version__ = "1.0"
 
 '''BotURL, a Google Wave robot.
 
-Shorten URLs in blips.
+Replace URLs with hyperlinks.
 Usage:
     Just add me as a participant, I will take care of the rest
 '''
@@ -25,11 +25,24 @@ from waveapi import simplejson
 URL_TINYURL = 'http://tinyurl.com/api-create.php?url=%s'
 URL_TINYURL_PREVIEW = 'http://tinyurl.com/preview.php?num=%s'
 
-URL_BITLY_EXPAND = 'http://api.bit.ly/expand?version=2.0.1&shortUrl=%s&login=bitlyapidemo&apiKey=R_0da49e0a9118ff35f52f629d2d71bf07'
+URL_BITLY_EXPAND = 'http://api.bit.ly/expand?version=2.0.1&shortUrl=%s&login=shinysky&apiKey=R_94be00f8f2d2cb123a10665b6728666b'
 
-STR_USAGE = "Usage:\nJust add me as a participant, I'll take care of the rest\n"
+CMD_NO = 'boturl:no'
+CMD_TITLE = 'boturl:title'
+CMD_SLEEP = 'boturl:goodnight'
+CMD_WAKEUP = 'boturl:wakeup'
+CMD_HELP = 'boturl:help'
+
 STR_LINK_TEXT = '[%s/...]'
 STR_LINK_TEXT_S = '[%s]'
+STR_USAGE = '''\nCommand:
+    %s - BotURL will leave this blip alone
+    %s - (NOT stable!)BotURL will replace the URLs in this blip with page titles
+    %s - Print this help message''' % (CMD_NO, CMD_TITLE, CMD_HELP)
+    #%s - Deactivate BotURL in this wave
+    #%s - Activate BotURL in this wave
+
+ISACTIVE = True
 
 logger = logging.getLogger('BotURL')
 logger.setLevel(logging.DEBUG)
@@ -37,19 +50,70 @@ logger.setLevel(logging.DEBUG)
 def OnRobotAdded(properties, context):
     """Invoked when the robot has been added."""
     logger.debug('OnRobotAdded()')    
-    root_wavelet = context.GetRootWavelet()
-    root_wavelet.CreateBlip().GetDocument().SetText("Hi, everybody, I can shorten the URLs!\n"+STR_USAGE)
+    Notify(context, "Hi, everybody, I can replace URLs with hyperlinks!\n"+STR_USAGE)
 
 def getMatchGroup(text):
     """return URL match groups"""
-    return re.findall(r"(?i)((https?|ftp|telnet|file|ms-help|nntp|wais|gopher|notes|prospero):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&]*))", text)
+    return re.findall(r"(?i)((https?|ftp|telnet|file|ms-help|nntp|wais|gopher|notes|prospero):((//)|(\\\\))+([\w\d:#@%/;$()~_?!\+-=\\\.&]*))", text)
 
 def httpGet(url):
     logger.debug('urlfetch: %s' % url)
     handler = urllib2.urlopen(url)
     response = handler.read()
+    try:
+        logging.debug(str(handler.info()))
+        charsets = set(['utf-8','GB18030','ISO-8859-1'])
+        content_type = handler.info().dict['content-type']
+        csMat = re.search('charset\=(.*)',content_type)
+        if csMat:
+            charset = csMat.group(1)
+            logging.debug('charset: %s' % charset)
+            if charset.upper() == 'GB2312':
+                charset = 'GB18030'
+            response = response.decode(charset)#.encode('utf-8')
+        else:
+            for cs in charsets:
+                try:
+                    logger.debug('try decode with %s'%cs)
+                    response = response.decode(cs)#.encode('utf-8')
+                    break
+                except:
+                    logger.debug('trying decode with %s failed'%cs)
+                    continue
+    except:
+        pass
     handler.close()
     return response
+
+def getTitle(url):
+    '''return user name'''
+    pageStr = httpGet(url)
+    #logger.debug('pageStr: %s' % pageStr)
+    title = re.findall(r'''<title>(.*?)</title>''', pageStr)
+    if title:
+        return title[0].strip()
+    else:
+        oMat = getMatchGroup(url)
+        if oMat:
+            return getDomain(oMat[0][5])+'/...'
+        else:
+            return url
+
+def getDomain(url):
+    '''return domain
+    url example: www.google.com/image/nation
+    must be without 'http://', etc.
+    '''
+    domain = url.replace('\\','/')
+    domain = domain.split('/',1)[0]
+    domleft = domain.find('@')#username:password
+    domain = domain[domleft+1:]
+    domright = domain.rfind(':')#port
+    if domright >= 0:
+        domain = domain[:domright]
+    if domain.startswith('www.'):
+        domain = domain[4:]
+    return domain
 
 def OnBlipSubmit(properties, context):
     """Invoked when new blip submitted."""
@@ -57,11 +121,29 @@ def OnBlipSubmit(properties, context):
     doc = blip.GetDocument()
     text = doc.GetText()
     left = 0
+    useTitle = False
     try:
         logger.debug('creator: %s' % blip.GetCreator())
         logger.debug('text: %s' % text)
     except:
         pass
+    #global ISACTIVE
+    #if CMD_WAKEUP in text:
+    #    logger.debug('active')
+    #    ISACTIVE = True
+    #elif CMD_SLEEP in text:
+    #    logger.debug('deactive')
+    #    ISACTIVE = False
+    #if not ISACTIVE:
+    #    return
+    if CMD_NO in text:
+        return
+    else:
+        if CMD_HELP in text:
+            newBlip = doc.AppendInlineBlip()
+            newBlip.GetDocument().SetText(STR_USAGE)
+        if CMD_TITLE in text:
+            useTitle = True
     queries = getMatchGroup(text)
     #Iterate through search strings
     for q in queries:
@@ -102,13 +184,11 @@ def OnBlipSubmit(properties, context):
                         linkTxt = STR_LINK_TEXT_S % oriurl
 
         if linkTxt == None:
-            domain = q[5].replace('\\','/')
-            domain = domain.split('/',1)[0]
-            domleft = domain.find('@')
-            domain = domain[domleft+1:]
-            if domain.startswith('www.'):
-                domain = domain[4:]
-            linkTxt = STR_LINK_TEXT % domain
+            if useTitle and (q[0].startswith('http:') or q[0].startswith('https:')):
+                linkTxt = STR_LINK_TEXT_S % getTitle(q[0])
+            else:
+                domain = getDomain(q[5])
+                linkTxt = STR_LINK_TEXT % domain
 
         doc.SetTextInRange(replaceRange, linkTxt)
         doc.SetAnnotation(document.Range(left, left+len(linkTxt)),
