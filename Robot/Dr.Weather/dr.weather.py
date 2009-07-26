@@ -41,8 +41,7 @@ logger.setLevel(logging.DEBUG)
 def OnRobotAdded(properties, context):
     """Invoked when the robot has been added."""
     logger.debug('OnRobotAdded()')
-    root_wavelet = context.GetRootWavelet()
-    root_wavelet.CreateBlip().GetDocument().SetText("Hi, everybody, I can see the future!\n"+STR_USAGE)
+    Notify(context, "Hi, everybody, I can see the future!\n"+STR_USAGE)
 
 def OnParticipantsChanged(properties, context):
     """Invoked when any participants have been added/removed."""
