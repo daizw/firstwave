@@ -3,6 +3,8 @@ Introduce Google Wave robot: BotURL
 
 = [http://wave-samples-gallery.appspot.com/about_app?app_id=18012 BotURL] =
 
+BotURL can replace a FULL URL with a hyperlink automatically.
+
 
 == Address ==
  * boturl@appspot.com
