@@ -19,7 +19,7 @@ BotURL can replace a FULL URL with a hyperlink automatically.
 
 
 == Notice ==
-BotURL only responses to *FULL* URLs, that meanings it will only response to "*HTTP://*www.google.com" and will do nothing about "www.google.com"
+BotURL only responses to *FULL* URLs, that means it will only response to "*HTTP://*www.google.com" and will do nothing about "www.google.com"
 
 *E.g.*:
 || *Original text* || *Replacement* || *Shorten URL* || *[http://en.wikipedia.org/wiki/Phishing Anti-phishing]* || *Expand URL* || *Title* ||
