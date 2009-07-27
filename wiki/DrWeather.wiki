@@ -3,6 +3,8 @@ Introduce Google Wave robot: Dr. Weather
 
 = [http://wave-samples-gallery.appspot.com/about_app?app_id=10008 Dr. Weather] =
 
+Dr. Weather can give you weather information and weather forecasts.
+
 
 == Address ==
  * shiny-sky@appspot.com
