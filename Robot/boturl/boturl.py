@@ -58,7 +58,10 @@ def getMatchGroup(text):
 
 def httpGet(url):
     logger.debug('urlfetch: %s' % url)
-    handler = urllib2.urlopen(url)
+    try:
+        handler = urllib2.urlopen(url)
+    except:
+        return ''
     response = handler.read()
     try:
         logging.debug(str(handler.info()))
@@ -138,12 +141,11 @@ def OnBlipSubmit(properties, context):
     #    return
     if CMD_NO in text:
         return
-    else:
-        if CMD_HELP in text:
-            newBlip = doc.AppendInlineBlip()
-            newBlip.GetDocument().SetText(STR_USAGE)
-        if CMD_TITLE in text:
-            useTitle = True
+    if CMD_HELP in text:
+        newBlip = doc.AppendInlineBlip()
+        newBlip.GetDocument().SetText(STR_USAGE)
+    if CMD_TITLE in text:
+        useTitle = True
     queries = getMatchGroup(text)
     #Iterate through search strings
     for q in queries:
@@ -160,28 +162,31 @@ def OnBlipSubmit(properties, context):
                 #http://tinyurl.com/preview.php?num=dehdc
                 url = URL_TINYURL_PREVIEW % (tMat.groups()[0])
                 response = httpGet(url)
-                oriurls = re.findall(r'(?i)<a id="redirecturl" href="([^<>]+)">', response)
-                if oriurls:
-                    oMat = getMatchGroup(oriurls[0])
-                    if oMat:
-                        q = oMat[0]
-                    else:#it also possibly can't be matched by our regex
-                        q = (oriurls[0],)
-                        linkTxt = STR_LINK_TEXT_S % oriurls[0]
+                if response:
+                    oriurls = re.findall(r'(?i)<a id="redirecturl" href="([^<>]+)">', response)
+                    if oriurls:
+                        oMat = getMatchGroup(oriurls[0])
+                        if oMat:
+                            q = oMat[0]
+                        else:#it also possibly can't be matched by our regex
+                            q = (oriurls[0],)
+                            linkTxt = STR_LINK_TEXT_S % oriurls[0]
         elif q[0].startswith('http://bit.ly/'):
             bMat = re.match('^http://bit.ly/(\w+)$', q[0])
             if bMat:
                 url = URL_BITLY_EXPAND % q[0]
-                bJson = simplejson.loads(httpGet(url))
-                #{u'errorCode': 0, u'errorMessage': u'', u'results': {u'31IqMl': {u'longUrl': u'http://cnn.com/'}}, u'statusCode': u'OK'}
-                if bJson[u'errorCode'] == 0:
-                    oriurl = bJson[u'results'][bMat.groups()[0]][u'longUrl']
-                    oMat = getMatchGroup(oriurl)
-                    if oMat:
-                        q = oMat[0]
-                    else:
-                        q = (oriurl,)
-                        linkTxt = STR_LINK_TEXT_S % oriurl
+                response = httpGet(url)
+                if response:
+                    bJson = simplejson.loads(response)
+                    #{u'errorCode': 0, u'errorMessage': u'', u'results': {u'31IqMl': {u'longUrl': u'http://cnn.com/'}}, u'statusCode': u'OK'}
+                    if bJson[u'errorCode'] == 0:
+                        oriurl = bJson[u'results'][bMat.groups()[0]][u'longUrl']
+                        oMat = getMatchGroup(oriurl)
+                        if oMat:
+                            q = oMat[0]
+                        else:
+                            q = (oriurl,)
+                            linkTxt = STR_LINK_TEXT_S % oriurl
 
         if linkTxt == None:
             if useTitle and (q[0].startswith('http:') or q[0].startswith('https:')):

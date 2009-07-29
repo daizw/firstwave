@@ -58,7 +58,9 @@ def OnParticipantsChanged(properties, context):
 def OnBlipSubmit(properties, context):
     """Invoked when new blip submitted. append rich formatted text to blip"""
     blip = context.GetBlipById(properties['blipId'])
-    text = blip.GetDocument().GetText()
+    doc = blip.GetDocument()
+    text = doc.GetText()
+    newdoc = None
     try:
         logger.debug('creator: %s' % blip.GetCreator())
         logger.debug('text: %s' % text)
@@ -66,12 +68,11 @@ def OnBlipSubmit(properties, context):
         pass
     if CMD_NO in text:
         return
-    else:
-        if CMD_HELP in text:
-            newBlip = blip.GetDocument().AppendInlineBlip()
-            newBlip.GetDocument().SetText(STR_USAGE)    
+    if CMD_HELP in text:
+        newBlip = doc.AppendInlineBlip()
+        newdoc = newBlip.GetDocument()
+        newdoc.SetText(STR_USAGE)    
     queries = re.findall(r"(?i)@([^@#,\t\r\n\v\f]+(,[^@#,\t\r\n\v\f]*)?)(#([a-z]+(-[a-z]+)?)?)?", text)
-    doc = None
     #Iterate through search strings
     for q in queries:
         city = q[0].strip().encode('utf-8')
@@ -81,10 +82,10 @@ def OnBlipSubmit(properties, context):
         logger.debug('quote city: %s' % city)
         weather_data = gwapi.get_weather_from_google(city, lang)
         if weather_data:
-            if doc == None:
-                newBlip = blip.GetDocument().AppendInlineBlip()
-                doc = newBlip.GetDocument()
-            gooleWeatherConverter(weather_data, doc)
+            if newdoc == None:
+                newBlip = doc.AppendInlineBlip()
+                newdoc = newBlip.GetDocument()
+            gooleWeatherConverter(weather_data, newdoc)
 
 def Notify(context, message):
     root_wavelet = context.GetRootWavelet()
