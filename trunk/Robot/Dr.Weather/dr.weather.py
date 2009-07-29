@@ -32,6 +32,9 @@ from waveapi import document
 
 import gwapi
 
+CMD_NO = 'drweather:no'
+CMD_HELP = 'drweather:help'
+
 URL_GOOGLE = 'http://www.google.com'
 STR_USAGE = 'Usage:\n@city\n@city,country\n@city#language-code\n@city,country#language-code\n'
 
@@ -61,6 +64,12 @@ def OnBlipSubmit(properties, context):
         logger.debug('text: %s' % text)
     except:
         pass
+    if CMD_NO in text:
+        return
+    else:
+        if CMD_HELP in text:
+            newBlip = blip.GetDocument().AppendInlineBlip()
+            newBlip.GetDocument().SetText(STR_USAGE)    
     queries = re.findall(r"(?i)@([^@#,\t\r\n\v\f]+(,[^@#,\t\r\n\v\f]*)?)(#([a-z]+(-[a-z]+)?)?)?", text)
     doc = None
     #Iterate through search strings
