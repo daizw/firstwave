@@ -72,7 +72,7 @@ def OnBlipSubmit(properties, context):
         newBlip = doc.AppendInlineBlip()
         newdoc = newBlip.GetDocument()
         newdoc.SetText(STR_USAGE)    
-    queries = re.findall(r"(?i)@([^@#,\t\r\n\v\f]+(,[^@#,\t\r\n\v\f]*)?)(#([a-z]+(-[a-z]+)?)?)?", text)
+    queries = re.findall(r"(?i)@([^@#,\t\r\n\v\f]+(,[^@#,\t\r\n\v\f]*)?)(#([a-z]{2}(-[a-z]{2})?)?)?", text)
     #Iterate through search strings
     for q in queries:
         city = q[0].strip().encode('utf-8')

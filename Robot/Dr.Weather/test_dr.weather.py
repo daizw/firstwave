@@ -17,7 +17,7 @@ def OnBlipSubmit():
     """
     while True:
         text = raw_input('query:')
-        queries = re.findall(r"(?i)@([^@#,\t\r\n\v\f][^@#,\t\r\n\v\f]*(,[^@#,\t\r\n\v\f]*)?)(#([a-z]+(-[a-z]+)?)?)?", text)
+        queries = re.findall(r"(?i)@([^@#,\t\r\n\v\f][^@#,\t\r\n\v\f]*(,[^@#,\t\r\n\v\f]*)?)(#([a-z]{2}(-[a-z]{2})?)?)?", text)
         #print queries
         if queries:
             print 'find %d queries...' % len(queries)
