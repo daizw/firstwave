@@ -56,6 +56,11 @@ def getMatchGroup(text):
     """return URL match groups"""
     return re.findall(r"(?i)((https?|ftp|telnet|file|ms-help|nntp|wais|gopher|notes|prospero):((//)|(\\\\))+([\w\d:#@%/;$()~_?!\+-=\\\.&]*))", text)
 
+def respDecode(pageStr, charset):
+    if charset.upper() == 'GB2312':
+        charset = 'GB18030'
+    return pageStr.decode(charset)
+
 def httpGet(url):
     logger.debug('urlfetch: %s' % url)
     try:
@@ -65,24 +70,36 @@ def httpGet(url):
     response = handler.read()
     try:
         logging.debug(str(handler.info()))
-        charsets = set(['utf-8','GB18030','ISO-8859-1'])
         content_type = handler.info().dict['content-type']
         csMat = re.search('charset\=(.*)',content_type)
         if csMat:
             charset = csMat.group(1)
             logging.debug('charset: %s' % charset)
-            if charset.upper() == 'GB2312':
-                charset = 'GB18030'
-            response = response.decode(charset)#.encode('utf-8')
+            response = respDecode(response, charset)
         else:
-            for cs in charsets:
-                try:
-                    logger.debug('try decode with %s'%cs)
-                    response = response.decode(cs)#.encode('utf-8')
-                    break
-                except:
-                    logger.debug('trying decode with %s failed'%cs)
-                    continue
+            #find charset from html head
+            logging.debug('find charset from html head')            
+            csMat = re.search(r'(?i)<head>.*<meta http-equiv=[^>]*charset\=([^>]*)>.*</head>',response,re.DOTALL)
+            if csMat:
+                logging.debug('found')            
+                charset = csMat.group(1)
+                charset = charset.replace('"','')
+                charset = charset.strip()
+                logging.debug('charset from meta: %s' % charset)
+                response = respDecode(response, charset)
+            else:
+                logging.debug('not found')            
+                charsets = set(['utf-8','GB18030','Big5', 'EUC_CN','EUC_TW',
+                    'Shift_JIS','EUC_JP','EUC-KR',
+                    'ISO-8859-1','cp1251','windows-1251'])
+                for cs in charsets:
+                    try:
+                        logger.debug('try decode with %s'%cs)
+                        response = response.decode(cs)#.encode('utf-8')
+                        break
+                    except:
+                        logger.debug('trying decode with %s failed'%cs)
+                        continue
     except:
         pass
     handler.close()
