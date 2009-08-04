@@ -14,7 +14,7 @@ Usage:
 
 import logging
 import re
-import urllib2
+import urllib2, urlparse
 
 from waveapi import events
 from waveapi import model
@@ -50,7 +50,7 @@ logger.setLevel(logging.DEBUG)
 def OnRobotAdded(properties, context):
     """Invoked when the robot has been added."""
     logger.debug('OnRobotAdded()')    
-    Notify(context, "Hi, everybody, I can replace URLs with hyperlinks!\n"+STR_USAGE)
+    Notify(context, "Hi, everybody, I can replace full URLs with hyperlinks!\n"+STR_USAGE)
 
 def getMatchGroup(text):
     """return URL match groups"""
@@ -63,8 +63,10 @@ def respDecode(pageStr, charset):
 
 def httpGet(url):
     logger.debug('urlfetch: %s' % url)
+    opener = urllib2.build_opener()
+    opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     try:
-        handler = urllib2.urlopen(url)
+        handler = opener.open(url)
     except:
         return ''
     response = handler.read()
@@ -78,7 +80,7 @@ def httpGet(url):
             response = respDecode(response, charset)
         else:
             #find charset from html head
-            logging.debug('find charset from html head')            
+            logging.debug('trying to search charset from html head')            
             csMat = re.search(r'(?i)<head>.*<meta http-equiv=[^>]*charset\=([^>]*)>.*</head>',response,re.DOTALL)
             if csMat:
                 logging.debug('found')            
@@ -94,11 +96,11 @@ def httpGet(url):
                     'ISO-8859-1','cp1251','windows-1251'])
                 for cs in charsets:
                     try:
-                        logger.debug('try decode with %s'%cs)
+                        logger.debug('trying to decode with %s'%cs)
                         response = response.decode(cs)#.encode('utf-8')
                         break
                     except:
-                        logger.debug('trying decode with %s failed'%cs)
+                        logger.debug('decoding with %s failed'%cs)
                         continue
     except:
         pass
@@ -112,28 +114,23 @@ def getTitle(url):
     title = re.findall(r'''<title>(.*?)</title>''', pageStr)
     if title:
         return title[0].strip()
-    else:
-        oMat = getMatchGroup(url)
-        if oMat:
-            return getDomain(oMat[0][5])+'/...'
-        else:
-            return url
+    return None
 
-def getDomain(url):
-    '''return domain
-    url example: www.google.com/image/nation
-    must be without 'http://', etc.
-    '''
-    domain = url.replace('\\','/')
-    domain = domain.split('/',1)[0]
-    domleft = domain.find('@')#username:password
-    domain = domain[domleft+1:]
-    domright = domain.rfind(':')#port
-    if domright >= 0:
-        domain = domain[:domright]
-    if domain.startswith('www.'):
-        domain = domain[4:]
-    return domain
+def getLinkText(url, useTitle = False):
+    '''return title of hyperlink, e.g. '[title.com/...]' '''
+    if useTitle:
+        title = getTitle(url)
+        if title:
+            return STR_LINK_TEXT_S % title
+    pu = urlparse.urlparse(url)
+    host = pu.hostname
+    if host.startswith('www.'):
+        host = host[4:]
+    path = pu.path.replace('/','')
+    path = path.replace('\\','')
+    if path == '':
+        return STR_LINK_TEXT_S % host
+    return STR_LINK_TEXT % host
 
 def OnBlipSubmit(properties, context):
     """Invoked when new blip submitted."""
@@ -166,15 +163,15 @@ def OnBlipSubmit(properties, context):
     queries = getMatchGroup(text)
     #Iterate through search strings
     for q in queries:
-        logger.info('query: %s' % q[0])
-        left = text.find(q[0], left)
+        fullurl = q[0]
+        logger.info('query: %s' % fullurl)
+        left = text.find(fullurl, left)
         if left < 0:
-            logger.error('failed to find a matched string.')
+            logger.error('failed to find a matched string: %s' % fullurl)
             continue
-        replaceRange = document.Range(left, left+len(q[0]))
-        linkTxt = None
-        if q[0].startswith('http://tinyurl.com/'):
-            tMat = re.match('^http://tinyurl.com/(\w+)$', q[0])
+        replaceRange = document.Range(left, left+len(fullurl))
+        if fullurl.startswith('http://tinyurl.com/'):
+            tMat = re.match('^http://tinyurl.com/(\w+)$', fullurl)
             if tMat:
                 #http://tinyurl.com/preview.php?num=dehdc
                 url = URL_TINYURL_PREVIEW % (tMat.groups()[0])
@@ -182,39 +179,23 @@ def OnBlipSubmit(properties, context):
                 if response:
                     oriurls = re.findall(r'(?i)<a id="redirecturl" href="([^<>]+)">', response)
                     if oriurls:
-                        oMat = getMatchGroup(oriurls[0])
-                        if oMat:
-                            q = oMat[0]
-                        else:#it also possibly can't be matched by our regex
-                            q = (oriurls[0],)
-                            linkTxt = STR_LINK_TEXT_S % oriurls[0]
-        elif q[0].startswith('http://bit.ly/'):
-            bMat = re.match('^http://bit.ly/(\w+)$', q[0])
+                        fullurl = oriurls[0]
+        elif fullurl.startswith('http://bit.ly/'):
+            bMat = re.match('^http://bit.ly/(\w+)$', fullurl)
             if bMat:
-                url = URL_BITLY_EXPAND % q[0]
+                url = URL_BITLY_EXPAND % fullurl
                 response = httpGet(url)
                 if response:
                     bJson = simplejson.loads(response)
                     #{u'errorCode': 0, u'errorMessage': u'', u'results': {u'31IqMl': {u'longUrl': u'http://cnn.com/'}}, u'statusCode': u'OK'}
                     if bJson[u'errorCode'] == 0:
-                        oriurl = bJson[u'results'][bMat.groups()[0]][u'longUrl']
-                        oMat = getMatchGroup(oriurl)
-                        if oMat:
-                            q = oMat[0]
-                        else:
-                            q = (oriurl,)
-                            linkTxt = STR_LINK_TEXT_S % oriurl
+                        fullurl = bJson[u'results'][bMat.groups()[0]][u'longUrl']
 
-        if linkTxt == None:
-            if useTitle and (q[0].startswith('http:') or q[0].startswith('https:')):
-                linkTxt = STR_LINK_TEXT_S % getTitle(q[0])
-            else:
-                domain = getDomain(q[5])
-                linkTxt = STR_LINK_TEXT % domain
+        linkTxt = getLinkText(fullurl, useTitle)
 
         doc.SetTextInRange(replaceRange, linkTxt)
         doc.SetAnnotation(document.Range(left, left+len(linkTxt)),
-                "link/manual", q[0])
+                "link/manual", fullurl)
         text = text.replace(text[replaceRange.start:replaceRange.end], linkTxt, 1)
         left += len(linkTxt)
 
@@ -225,7 +206,7 @@ def Notify(context, message):
 if __name__ == '__main__':
     myRobot = robot.Robot('BotURL',
             image_url='http://boturl.appspot.com/assets/icon.png',
-            version='1.0',
+            version='2.0',
             profile_url='http://boturl.appspot.com/assets/profile.html')
     myRobot.RegisterHandler(events.WAVELET_SELF_ADDED, OnRobotAdded)
     myRobot.RegisterHandler(events.BLIP_SUBMITTED, OnBlipSubmit)

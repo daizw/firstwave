@@ -3,7 +3,7 @@
 
 import logging
 import re
-import urllib2
+import urllib2, urlparse
 
 from waveapi import simplejson
 
