@@ -69,7 +69,7 @@ def OnBlipSubmit(properties, context):
     if CMD_NO in text:
         return
     if CMD_HELP in text:
-        newBlip = doc.AppendInlineBlip()
+        newBlip = blip.CreateChild()
         newdoc = newBlip.GetDocument()
         newdoc.SetText(STR_USAGE)    
     queries = re.findall(r"(?i)@([^@#,\t\r\n\v\f]+(,[^@#,\t\r\n\v\f]*)?)(#([a-z]{2}(-[a-z]{2})?)?)?", text)
@@ -83,7 +83,7 @@ def OnBlipSubmit(properties, context):
         weather_data = gwapi.get_weather_from_google(city, lang)
         if weather_data:
             if newdoc == None:
-                newBlip = doc.AppendInlineBlip()
+                newBlip = blip.CreateChild()
                 newdoc = newBlip.GetDocument()
             gooleWeatherConverter(weather_data, newdoc)
 
@@ -125,9 +125,9 @@ def getImageObj(url):
 
 def gooleWeatherConverter(weatherData, doc):
     '''convert data to html/txt'''
-    doc.AppendText('\n\n')
+    doc.AppendText(' \n\n ')
     doc.AppendElement(getImageObj(weatherData['current_conditions']['icon']))
-    doc.AppendText('\n%s\n%s, %sC(%sF)\n%s\n%s\n\n' % (
+    doc.AppendText('\n%s\n%s, %sC(%sF)\n%s\n%s \n\n ' % (
         weatherData['forecast_information']['city'].upper(),
         weatherData['current_conditions']['condition'],
         weatherData['current_conditions']['temp_c'],
@@ -136,7 +136,7 @@ def gooleWeatherConverter(weatherData, doc):
         weatherData['current_conditions']['wind_condition']))
     for day in weatherData['forecasts']:
         doc.AppendElement(getImageObj(day['icon']))
-        doc.AppendText(' %s: %s, %s ~ %s\n'%(day['day_of_week'], day['condition'],
+        doc.AppendText(' %s: %s, %s ~ %s\n '%(day['day_of_week'], day['condition'],
             TempConverter(day['low'], weatherData['forecast_information']['unit_system']),
             TempConverter(day['high'], weatherData['forecast_information']['unit_system'])))
 
