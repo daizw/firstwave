@@ -141,7 +141,7 @@ def gooleWeatherConverter(weatherData, doc):
             TempConverter(day['high'], weatherData['forecast_information']['unit_system'])))
 
 if __name__ == '__main__':
-    myRobot = robot.Robot('Dr. Weather',
+    myRobot = robot.Robot('DrWeather',
             image_url='http://shiny-sky.appspot.com/assets/sunny.png',
             version='1.0',
             profile_url='http://shiny-sky.appspot.com/assets/profile.html')
