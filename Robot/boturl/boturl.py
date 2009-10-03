@@ -156,7 +156,7 @@ def OnBlipSubmit(properties, context):
     if CMD_NO in text:
         return
     if CMD_HELP in text:
-        newBlip = doc.AppendInlineBlip()
+        newBlip = blip.CreateChild()
         newBlip.GetDocument().SetText(STR_USAGE)
     if CMD_TITLE in text:
         useTitle = True
