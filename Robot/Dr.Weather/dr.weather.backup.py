@@ -29,6 +29,7 @@ from waveapi import events
 from waveapi import model
 from waveapi import robot
 from waveapi import document
+from waveapi.ops import OpBuilder
 
 import gwapi
 
@@ -85,7 +86,10 @@ def OnBlipSubmit(properties, context):
             if newdoc == None:
                 newBlip = blip.CreateChild()
                 newdoc = newBlip.GetDocument()
-            gooleWeatherConverter(weather_data, newdoc)
+            newdoc.SetText(" ")
+            reply = gooleWeatherConverter(weather_data)
+            builder = OpBuilder(context)
+            builder.DocumentAppendMarkup(newBlip.waveId, newBlip.waveletId, newBlip.GetId(), reply)
 
 def Notify(context, message):
     root_wavelet = context.GetRootWavelet()
@@ -120,25 +124,25 @@ def TempConverter(t, u):
     else:# u == 'SI':
         return u'%s°C(%s°F)'%(t, Celsius2Fahrenheit(t))
 
-def getImageObj(url):
-    return document.Image(URL_GOOGLE+url)
+def getImageURL(url):
+    return (URL_GOOGLE+url)
 
-def gooleWeatherConverter(weatherData, doc):
+def gooleWeatherConverter(weatherData):
     '''convert data to html/txt'''
-    doc.AppendText(' \n\n ')
-    doc.AppendElement(getImageObj(weatherData['current_conditions']['icon']))
-    doc.AppendText(u'\n%s\n%s, %s°C(%s°F)\n%s\n%s \n\n ' % (
-        weatherData['forecast_information']['city'].upper(),
+    replystr = u'<br/><br/><img src="%s" /><br/>' % getImageURL(weatherData['current_conditions']['icon'])
+    replystr += u'<b>%s</b><br/>%s, %s°C(%s°F)<br/>%s<br/>%s<br/><br/>' % (
+        weatherData['forecast_information']['city'],
         weatherData['current_conditions']['condition'],
         weatherData['current_conditions']['temp_c'],
         weatherData['current_conditions']['temp_f'],
         weatherData['current_conditions']['humidity'],
-        weatherData['current_conditions']['wind_condition']))
+        weatherData['current_conditions']['wind_condition'])
     for day in weatherData['forecasts']:
-        doc.AppendElement(getImageObj(day['icon']))
-        doc.AppendText(u' %s: %s, %s ~ %s\n '%(day['day_of_week'], day['condition'],
+        replystr += u'<img src="%s" />' % getImageURL(day['icon'])
+        replystr += u'<b>%s</b>: %s, %s ~ %s<br/>' % (day['day_of_week'], day['condition'],
             TempConverter(day['low'], weatherData['forecast_information']['unit_system']),
-            TempConverter(day['high'], weatherData['forecast_information']['unit_system'])))
+            TempConverter(day['high'], weatherData['forecast_information']['unit_system']))
+    return replystr
 
 if __name__ == '__main__':
     myRobot = robot.Robot('DrWeather',
