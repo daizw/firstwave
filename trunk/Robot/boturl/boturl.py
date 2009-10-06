@@ -38,7 +38,8 @@ STR_LINK_TEXT_S = '[%s]'
 STR_USAGE = '''\nCommand:
     %s - BotURL will leave this blip alone
     %s - (NOT stable!)BotURL will replace the URLs in this blip with page titles
-    %s - Print this help message''' % (CMD_NO, CMD_TITLE, CMD_HELP)
+    %s - Print this help message
+More: http://code.google.com/p/firstwave/wiki/BotURL''' % (CMD_NO, CMD_TITLE, CMD_HELP)
     #%s - Deactivate BotURL in this wave
     #%s - Activate BotURL in this wave
 
@@ -54,7 +55,7 @@ def OnRobotAdded(properties, context):
 
 def getMatchGroup(text):
     """return URL match groups"""
-    return re.findall(r"(?i)((https?|ftp|telnet|file|ms-help|nntp|wais|gopher|notes|prospero):((//)|(\\\\))+([\w\d:#@%/;$()~_?!\+-=\\\.&]*))", text)
+    return re.findall(r"(?i)((https?|ftp|telnet|file|ms-help|nntp|wais|gopher|notes|prospero):((//)|(\\\\))+([^\s]*))", text)
 
 def respDecode(pageStr, charset):
     if charset.upper() == 'GB2312':
@@ -112,6 +113,7 @@ def getTitle(url):
     pageStr = httpGet(url)
     #logger.debug('pageStr: %s' % pageStr)
     title = re.findall(r'''<title>(.*?)</title>''', pageStr)
+    #logger.debug('title: %s' % title)
     if title:
         return title[0].strip()
     return None
@@ -207,7 +209,7 @@ if __name__ == '__main__':
     myRobot = robot.Robot('BotURL',
             image_url='http://boturl.appspot.com/assets/icon.png',
             version='2.0',
-            profile_url='http://boturl.appspot.com/assets/profile.html')
+            profile_url='http://code.google.com/p/firstwave/wiki/BotURL')
     myRobot.RegisterHandler(events.WAVELET_SELF_ADDED, OnRobotAdded)
     myRobot.RegisterHandler(events.BLIP_SUBMITTED, OnBlipSubmit)
     
