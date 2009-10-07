@@ -74,7 +74,7 @@ def httpGet(url):
     try:
         logging.debug(str(handler.info()))
         content_type = handler.info().dict['content-type']
-        csMat = re.search('charset\=(.*)',content_type)
+        csMat = re.search('(?i)charset=(.*)',content_type)
         if csMat:
             charset = csMat.group(1)
             logging.debug('charset: %s' % charset)
@@ -82,7 +82,7 @@ def httpGet(url):
         else:
             #find charset from html head
             logging.debug('trying to search charset from html head')            
-            csMat = re.search(r'(?i)<head>.*<meta http-equiv=[^>]*charset\=([^>]*)>.*</head>',response,re.DOTALL)
+            csMat = re.search(r'(?i)<head>.*<meta [^>]*charset=([\w-]+)[^>]*>.*</head>',response,re.DOTALL)
             if csMat:
                 logging.debug('found')            
                 charset = csMat.group(1)
@@ -111,11 +111,11 @@ def httpGet(url):
 def getTitle(url):
     '''return user name'''
     pageStr = httpGet(url)
-    #logger.debug('pageStr: %s' % pageStr)
-    title = re.findall(r'''<title>(.*?)</title>''', pageStr)
-    #logger.debug('title: %s' % title)
+    title = re.findall(r'''(?is)<title>(.*?)</title>''', pageStr)
     if title:
+        #logger.debug('title: %s' % title)
         return title[0].strip()
+    logger.debug('pageStr: %s' % pageStr)
     return None
 
 def getLinkText(url, useTitle = False):
@@ -173,7 +173,7 @@ def OnBlipSubmit(properties, context):
             continue
         replaceRange = document.Range(left, left+len(fullurl))
         if fullurl.startswith('http://tinyurl.com/'):
-            tMat = re.match('^http://tinyurl.com/(\w+)$', fullurl)
+            tMat = re.match(r'(?i)^http://tinyurl.com/(\w+)$', fullurl)
             if tMat:
                 #http://tinyurl.com/preview.php?num=dehdc
                 url = URL_TINYURL_PREVIEW % (tMat.groups()[0])
@@ -183,7 +183,7 @@ def OnBlipSubmit(properties, context):
                     if oriurls:
                         fullurl = oriurls[0]
         elif fullurl.startswith('http://bit.ly/'):
-            bMat = re.match('^http://bit.ly/(\w+)$', fullurl)
+            bMat = re.match(r'(?i)^http://bit.ly/(\w+)$', fullurl)
             if bMat:
                 url = URL_BITLY_EXPAND % fullurl
                 response = httpGet(url)
