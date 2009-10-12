@@ -11,12 +11,11 @@ Dr. Weather can give you weather information and weather forecasts.
 
 
 == Usage ==
-{{{
- * {{{[city]
- * `[city,country`]
- * `[city,,language-code`]
- * `[city,country,language-code`]
-}}}
+ * {{{[city]}}}
+ * {{{[city,country]}}}
+ * {{{[city,,language-code]}}}
+ * {{{[city,country,language-code]}}}
+
 
 
 == Notice ==
@@ -51,11 +50,11 @@ Known supported languages are:
 
 
 *E.g.*:
- * `[beijing`]
- * `[beijing,china`]
- * `[beijing,,zh-cn`]
- * `[beijing,china,zh-cn`]
- * `[蘇州,zh-cn`]
- * `[São Paulo,Brazil`]
+ * {{{[beijing]}}}
+ * {{{[beijing,china]}}}
+ * {{{[beijing,,zh-cn]}}}
+ * {{{[beijing,china,zh-cn]}}}
+ * {{{[蘇州,zh-cn]}}}
+ * {{{[São Paulo,Brazil]}}}
 
 http://firstwave.googlecode.com/files/dr.weather.2.png
