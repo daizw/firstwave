@@ -11,7 +11,7 @@ Dr. Weather can give you weather information and weather forecasts.
 
 
 == Usage ==
- * `[city`]
+ * `[city`] 
  * `[city,country`]
  * `[city,,language-code`]
  * `[city,country,language-code`]
