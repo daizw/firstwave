@@ -29,7 +29,7 @@ logger.setLevel(logging.DEBUG)
 def OnRobotAdded(properties, context):
     """Invoked when the robot has been added."""
     logger.debug('OnRobotAdded()')    
-    Notify(context, "Hi, everybody, I can what happened today in the history!\n"+STR_USAGE)
+    Notify(context, "Hi, everybody, I know what happened today in the history!\n"+STR_USAGE)
 
 def respDecode(pageStr, charset):
     if charset.upper() == 'GB2312':

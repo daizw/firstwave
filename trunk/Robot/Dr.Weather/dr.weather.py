@@ -8,17 +8,7 @@ __version__ = "2.0"
 '''Dr. Weather, a Google Wave robot.
 Gives the weather of a city.
 
-Usage:
-@city
-@city,country
-@city#language-code
-@city,country#language-code
-
-E.g.:
-@beijing
-@beijing,china
-@beijing#zh-cn
-@beijing,china#zh-cn
+Intro: http://code.google.com/p/firstwave/wiki/DrWeather
 '''
 
 import logging
@@ -36,7 +26,12 @@ CMD_NO = 'drweather:no'
 CMD_HELP = 'drweather:help'
 
 URL_GOOGLE = 'http://www.google.com'
-STR_USAGE = 'Usage: @city[,country][#language-code]\n(More: http://code.google.com/p/firstwave/wiki/DrWeather)'
+STR_USAGE = '''Usage: 
+    [city]
+    [city,country]
+    [city,,language-code]
+    [city,country,language-code]
+(More: http://code.google.com/p/firstwave/wiki/DrWeather)'''
 
 logger = logging.getLogger('Dr_Weather')
 logger.setLevel(logging.DEBUG)
@@ -72,7 +67,7 @@ def OnBlipSubmit(properties, context):
         newBlip = blip.CreateChild()
         newdoc = newBlip.GetDocument()
         newdoc.SetText(STR_USAGE)    
-    queries = re.findall(r"(?i)@([^@#,\t\r\n\v\f]+(,[^@#,\t\r\n\v\f]*)?)(#([a-z]{2}(-[a-z]{2})?)?)?", text)
+    queries = re.findall(r"(?i)\[([^,\[\]]+(,[^,\[\]]*)?)(,([a-z]{2}(-[a-z]{2})?)?)?\]", text)
     #Iterate through search strings
     for q in queries:
         city = q[0].strip().encode('utf-8')
