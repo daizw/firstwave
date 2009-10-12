@@ -7,7 +7,7 @@ Dr. Weather can give you weather information and weather forecasts.
 
 
 == Address ==
- * dr-weather@appspot.com
+ * shiny-sky@appspot.com
 
 
 == Usage ==
