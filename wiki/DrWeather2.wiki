@@ -54,7 +54,7 @@ Known supported languages are:
  * {{{[beijing,china]}}}
  * {{{[beijing,,zh-cn]}}}
  * {{{[beijing,china,zh-cn]}}}
- * {{{[蘇州,zh-cn]}}}
+ * {{{[蘇州,,zh-cn]}}}
  * {{{[São Paulo,Brazil]}}}
 
 http://firstwave.googlecode.com/files/dr.weather.2.png
