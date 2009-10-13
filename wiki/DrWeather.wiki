@@ -3,7 +3,7 @@ Introduce Google Wave robot: Dr. Weather
 
 = ATTENTION =
 
-{{{' Dr. Weather has a NEW COMMAND FORMAT! '}}}
+{{{ # Dr. Weather has a NEW COMMAND FORMAT! }}}
 
 = [http://wave-samples-gallery.appspot.com/about_app?app_id=10008 Dr. Weather] =
 
