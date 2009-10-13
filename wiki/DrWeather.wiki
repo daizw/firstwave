@@ -1,9 +1,10 @@
 #labels Featured
 Introduce Google Wave robot: Dr. Weather
 
-= ATTENTION =
+= ATTENTION: Dr. Weather has a NEW COMMAND FORMAT!=
 
-== Dr. Weather has a NEW COMMAND FORMAT! ==
+Please don't use '@' anymore, use '[]' instead(place your query between them).
+
 
 = [http://wave-samples-gallery.appspot.com/about_app?app_id=10008 Dr. Weather] =
 
