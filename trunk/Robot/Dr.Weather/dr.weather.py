@@ -64,7 +64,7 @@ def OnBlipSubmit(properties, context):
     if CMD_NO in text:
         return
     if CMD_HELP in text:
-        newBlip = blip.CreateChild()
+        newBlip = doc.AppendInlineBlip()
         newdoc = newBlip.GetDocument()
         newdoc.SetText(STR_USAGE)    
     queries = re.findall(r"(?i)\[([^,\[\]]+(,[^,\[\]]*)?)(,([a-z]{2}(-[a-z]{2})?)?)?\]", text)
@@ -78,7 +78,7 @@ def OnBlipSubmit(properties, context):
         weather_data = gwapi.get_weather_from_google(city, lang)
         if weather_data:
             if newdoc == None:
-                newBlip = blip.CreateChild()
+                newBlip = doc.AppendInlineBlip()
                 newdoc = newBlip.GetDocument()
             gooleWeatherConverter(weather_data, newdoc)
 
